@@ -1,5 +1,5 @@
 const Block = require('./block');
 
-const block = new Block('a', 'b', 'c', 'd');
+const fBlock = Block.mineBlock(Block.genesis(), 'fake');
 
-console.log(block.toString());
+console.log(fBlock.toString());
