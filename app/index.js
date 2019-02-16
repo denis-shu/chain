@@ -18,9 +18,11 @@ app.get('/blocks', (req, res) => {
 app.post('/mine', (req, res) => {
     const blokc = bc.addBlock(req.body.data);
     console.log(`new block add ${blokc.toString()}`);
-
+    p2pServer.syncChains();
     res.redirect('/blocks');
 });
+
+
 
 
 app.listen(HTTP_PORT, () => console.log(`its ok. Port ${HTTP_PORT}`));

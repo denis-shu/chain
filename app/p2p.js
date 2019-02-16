@@ -33,7 +33,30 @@ class P2PServer {
     connectionSocket(socket) {
         this.sockets.push(socket);
         console.log('socket connected');
+
+        this.messageHandler(socket);
+
+        this.sendChain(socket);
+    }
+
+    messageHandler(socket) {
+        socket.on('message', m => {
+            const data = JSON.parse(m);
+
+            this.blockchain.replaceChain(data);
+        });
+    }
+
+    sendChain(socket) {
+        socket.send(JSON.stringify(this.blockchain.chain));
+
+    }
+
+    syncChains() {
+        this.sockets.forEach(s => {
+            this.sendChain(s);
+        });
     }
 }
 
-module.exports =  P2PServer;
+module.exports = P2PServer;

@@ -1,11 +1,16 @@
 const SHA256 = require('crypto-js/sha256');
 
+const {
+    DIFFICULTY
+} = require('../config');
+
 class Block {
-    constructor(timestamp, lasthash, hash, data) {
+    constructor(timestamp, lasthash, hash, data, nonce) {
         this.timestamp = timestamp;
         this.lasthash = lasthash;
         this.hash = hash;
         this.data = data;
+        this.nonce = nonce;
     }
 
     toString() {
@@ -13,28 +18,42 @@ class Block {
             Timestamp: ${this.timestamp}
             Last Hash: ${this.lasthash.substring(0,10)}
             Hash     : ${this.hash.substring(0,10)}
+            Nonce    : ${this.nonce}
             Data     : ${this.data}`;
     }
 
     static genesis() {
-        return new this('Genes time', '--------', 'j2k2je-u24i', [])
+        return new this('Genes time', '--------', 'j2k2je-u24i', [], 0)
     }
 
     static mineBlock(lastBlock, data) {
-        const timestamp = Date.now();
+        let hash, timestamp;
+
         const lastHash = lastBlock.hash;
-        const hash = Block.hash(timestamp, lastHash, data);
+        let nonce = 0;
+        do {
+            nonce++;
+            timestamp = Date.now();
+            hash = Block.hash(timestamp, lastHash, data, nonce);
+        } while (hash.substring(0, DIFFICULTY) !== '0'.repeat(DIFFICULTY));
 
-        return new this(timestamp, lastHash, hash, data);
+
+        return new this(timestamp, lastHash, hash, data, nonce);
+
     }
 
-    static hash(timestamp, lastHash, data) {
-        return SHA256(`${timestamp}${lastHash}${data}`).toString();
+    static hash(timestamp, lastHash, data, nonce) {
+        return SHA256(`${timestamp}${lastHash}${data}${nonce}`).toString();
     }
 
-    static blockHash(block){
-        const {timestamp, lasthash, data} = block;
-        return Block.hash(timestamp, lasthash, data);
+    static blockHash(block) {
+        const {
+            timestamp,
+            lasthash,
+            data,
+            nonce
+        } = block;
+        return Block.hash(timestamp, lasthash, data, nonce);
     }
 }
 
