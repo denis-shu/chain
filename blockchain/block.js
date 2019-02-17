@@ -1,60 +1,63 @@
-const SHA256 = require('crypto-js/sha256');
+const SHA256 = require("crypto-js/sha256");
 
-const {
-    DIFFICULTY
-} = require('../config');
+const { DIFFICULTY, MINE_RATE } = require("../config");
 
 class Block {
-    constructor(timestamp, lasthash, hash, data, nonce) {
-        this.timestamp = timestamp;
-        this.lasthash = lasthash;
-        this.hash = hash;
-        this.data = data;
-        this.nonce = nonce;
-    }
+  constructor(timestamp, lasthash, hash, data, nonce, difficulty) {
+    this.timestamp = timestamp;
+    this.lasthash = lasthash;
+    this.hash = hash;
+    this.data = data;
+    this.nonce = nonce;
+    this.difficulty = difficulty || DIFFICULTY;
+  }
 
-    toString() {
-        return `Block - 
+  toString() {
+    return `Block - 
             Timestamp: ${this.timestamp}
-            Last Hash: ${this.lasthash.substring(0,10)}
-            Hash     : ${this.hash.substring(0,10)}
+            Last Hash: ${this.lasthash.substring(0, 10)}
+            Hash     : ${this.hash.substring(0, 10)}
             Nonce    : ${this.nonce}
+            Difficulty: ${this.difficulty}
             Data     : ${this.data}`;
-    }
+  }
 
-    static genesis() {
-        return new this('Genes time', '--------', 'j2k2je-u24i', [], 0)
-    }
+  static genesis() {
+    return new this("Genes time", "--------", "j2k2je-u24i", [], 0, DIFFICULTY);
+  }
 
-    static mineBlock(lastBlock, data) {
-        let hash, timestamp;
+  static mineBlock(lastBlock, data) {
+    let hash, timestamp;
 
-        const lastHash = lastBlock.hash;
-        let nonce = 0;
-        do {
-            nonce++;
-            timestamp = Date.now();
-            hash = Block.hash(timestamp, lastHash, data, nonce);
-        } while (hash.substring(0, DIFFICULTY) !== '0'.repeat(DIFFICULTY));
+    const lastHash = lastBlock.hash;
+    let { difficulty } = lastBlock;
+    let nonce = 0;
+    do {
+      nonce++;
+      timestamp = Date.now();
+      difficulty = Block.adjustDifficulty(lastBlock, timestamp);
+      hash = Block.hash(timestamp, lastHash, data, nonce, difficulty);
+    } while (hash.substring(0, difficulty) !== "0".repeat(difficulty));
 
+    return new this(timestamp, lastHash, hash, data, nonce, difficulty);
+  }
 
-        return new this(timestamp, lastHash, hash, data, nonce);
+  static hash(timestamp, lastHash, data, nonce, difficulty) {
+    return SHA256(
+      `${timestamp}${lastHash}${data}${nonce}${difficulty}`
+    ).toString();
+  }
 
-    }
+  static blockHash(block) {
+    const { timestamp, lasthash, data, nonce, difficulty } = block;
+    return Block.hash(timestamp, lasthash, data, nonce, difficulty);
+  }
 
-    static hash(timestamp, lastHash, data, nonce) {
-        return SHA256(`${timestamp}${lastHash}${data}${nonce}`).toString();
-    }
-
-    static blockHash(block) {
-        const {
-            timestamp,
-            lasthash,
-            data,
-            nonce
-        } = block;
-        return Block.hash(timestamp, lasthash, data, nonce);
-    }
+  static adjustDifficulty(lastBlock, currentTime) {
+    let { difficulty } = lastBlock;
+    difficulty = lastBlock.timestamp + MINE_RATE > currentTime ? difficulty + 1 : difficulty - 1;
+    return difficulty;
+  }
 }
 
 module.exports = Block;
