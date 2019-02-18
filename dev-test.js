@@ -1,8 +1,15 @@
 const Blockchain = require('./blockchain');
+const W = require('./wallet');
 
-const b = new Blockchain(); 
+const w = new W();
 
-for(let i=0; i<10; i++){
-    console.log(b.addBlock(`fa ${i}`).toString());
-}
+console.log(w.toString());
+
+
+// const b = new Blockchain(); 
+
+// for(let i=0; i<10; i++){
+//     console.log(b.addBlock(`fa ${i}`).toString());
+// }
+
 

@@ -24,13 +24,13 @@ describe('Block', () => {
 
     it('generate hash', () => {
         expect(block.hash.substring(0, block.difficulty)).toEqual('0'.repeat(block.difficulty));
-        console.log(block.toString());
+        // console.log(block.toString());
     });
 
     it('dif', () => {
-        console.log(Block.adjustDifficulty(block, block.timestamp + 360000));
-        console.log('2');
-        console.log(block);
+        // console.log(Block.adjustDifficulty(block, block.timestamp + 360000));
+        // console.log('2');
+        // console.log(block);
         expect(Block.adjustDifficulty(block, block.timestamp + 360000))
             .toEqual(block.difficulty - 1);
     });

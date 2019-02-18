@@ -1,3 +1,4 @@
+const ChainUtil = require('../chain-util');
 const {
     INIT_BALANCE
 } = require('../config');
@@ -5,8 +6,8 @@ const {
 class Wallet {
     constructor() {
         this.balance = INIT_BALANCE;
-        this.keyPair = null;
-        this.publickKey = null;
+        this.keyPair = ChainUtil.genKeyPair();
+        this.publicKey = this.keyPair.getPublic().encode('hex');
     }
 
     toString() {
@@ -14,6 +15,9 @@ class Wallet {
         publicKEy: ${this.publickKey.toString()}
         balance :${this.balance}
         `
+    }
+    signOn(dataHash){
+       return this.keyPair.sign(dataHash);
     }
 
 }
