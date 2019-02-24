@@ -1,4 +1,7 @@
 const ChainUtil = require('../chain-util');
+const {
+    REWARD
+} = require('../config');
 
 class Transaction {
     constructor() {
@@ -65,7 +68,7 @@ class Transaction {
             transaction.input.signature,
 
             ChainUtil.hash(transaction.outputs)
-        );
+        )
     }
 
 

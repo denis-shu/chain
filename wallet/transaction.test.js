@@ -31,7 +31,7 @@ describe("Trans", () => {
     });
 
     it("validate trnsct", () => {
-        console.log("T", transaction);
+        // console.log("T", transaction);
         expect(Transaction.verifyTr(transaction)).toBe(true);
     });
 

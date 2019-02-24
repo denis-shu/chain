@@ -4,9 +4,15 @@ const P2P_PORT = process.env.P2P_PORT || 5001;
 
 const peers = process.env.PEERS ? process.env.PEERS.split(',') : [];
 
+const MSG_TYPES = {
+    chain: 'CHAIN',
+    transaction: 'TRANSACTION'
+};
+
 class P2PServer {
-    constructor(blockchain) {
+    constructor(blockchain, transactionPool) {
         this.blockchain = blockchain;
+        this.transactionPool = transactionPool;
         this.sockets = [];
     }
 
@@ -43,12 +49,23 @@ class P2PServer {
         socket.on('message', m => {
             const data = JSON.parse(m);
 
-            this.blockchain.replaceChain(data);
+            switch (data.type) {
+                case MSG_TYPES.chain:
+                    this.blockchain.replaceChain(data.chain);
+                    break;
+                case MSG_TYPES.transaction:
+                    this.transactionPool.updateOrAddTransaction(data.transaction);
+                    break;
+            }
+
         });
     }
 
     sendChain(socket) {
-        socket.send(JSON.stringify(this.blockchain.chain));
+        socket.send(JSON.stringify({
+            type: MSG_TYPES.chain,
+            chain: this.blockchain.chain
+        }));
 
     }
 
@@ -56,6 +73,17 @@ class P2PServer {
         this.sockets.forEach(s => {
             this.sendChain(s);
         });
+    }
+
+    sendTransaction(socket, transaction) {
+        socket.send(JSON.stringify({
+            type: MSG_TYPES.transaction,
+            transaction
+        }));
+    }
+
+    syncTransaction(transaction) {
+        this.sockets.forEach(s => this.sendTransaction(s, transaction));
     }
 }
 
