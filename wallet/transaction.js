@@ -28,15 +28,24 @@ class Transaction {
         return this;
     }
 
-    static newTransaction(senderWallet, recipient, amount) {
+   static transactionWithOuts(senderWallet, outputs) {
         const transaction = new this();
+        transaction.outputs.push(...outputs);
+        Transaction.signTransaction(transaction, senderWallet);
+
+        return transaction;
+
+    }
+
+    static newTransaction(senderWallet, recipient, amount) {
 
         if (amount > senderWallet.balance) {
             console.log(`ops, ${amount} gr;th balance.`);
             return;
         }
 
-        transaction.outputs.push(...[{
+
+        return Transaction.transactionWithOuts(senderWallet, [{
                 amount: senderWallet.balance - amount,
                 address: senderWallet.publicKey
             },
@@ -44,11 +53,16 @@ class Transaction {
                 amount,
                 address: recipient
             }
-        ])
+        ]);
 
-        Transaction.signTransaction(transaction, senderWallet);
+    }
 
-        return transaction;
+    static rewardT(minerW, blockchainW) {
+        // console.log('wallet', minerW );
+        return Transaction.transactionWithOuts(blockchainW, [{
+            amount: REWARD,
+            address: minerW.publicKey
+        }]);
     }
 
     static signTransaction(transaction, senderWallet) {
