@@ -47,7 +47,7 @@ app.post('/transact', (req, res) => {
         recipient,
         amount
     } = req.body;
-    const transaction = wallet.createTransaction(recipient, amount, tp);
+    const transaction = wallet.createTransaction(recipient, amount, bc, tp);
     p2pServer.syncTransaction(transaction);
     res.redirect('./transactions');
 });

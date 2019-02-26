@@ -77,7 +77,7 @@ describe("Trans", () => {
 
     describe('cr a reward', () => {
         beforeEach(() => {
-            console.log('Transc', wallet);
+            // console.log('Transc', wallet);
 
             transaction = Transaction.rewardT(wallet, Wallet.blockchainW());
         });
